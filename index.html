@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            display: flex;
+        }
+
+        .navbar {
+            background-color: #222;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #444;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar .brand {
+            flex: 1;
+            color: #00ffb3;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: #00ffb3;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .partition {
+            width: 20%;
+            background: #222;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .partition p {
+            color: #fff;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .container {
+            margin-left: 20%;
+            width: 80%;
+            height: 100vh;
+            background: #333;
+            border: 3px solid rgb(0, 0, 0);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .header {
+            background-color: #222;
+            padding: 10px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            border-bottom: 1px solid #444;
+        }
+
+        .dynamic-text {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #222;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .message.user {
+            color: #00ffb3;
+            text-align: right;
+        }
+
+        .message.assistant {
+            color: #fff;
+            text-align: left;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #444;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            outline: none;
+            background: #222;
+            color: #fff;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            background-color: #00ffb3;
+            color: hsl(0, 0%, 100%);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #41cf59;
+        }
+
+        .conversation-starters {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+        }
+
+        .starter {
+            background-color: #444;
+            padding: 8px;
+            border-radius: 10px;
+            text-align: center;
+            width: 15%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            color: #fff;
+            font-size: 10px;
+        }
+
+        .starter:hover {
+            background-color: #00ffb3;
+            border: 2px solid #41cf59;
+            color: #000;
+        }
+
+        .starter p {
+            font-size: 10px;
+            margin: 0;
+        }
+
+        .starter h3 {
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <div class="navbar">
+        <div class="brand">BuyWise.AI</div>
+        <a href="#" id="home-nav">Home</a>
+        <a href="#" id="how-to-use-nav">How to Use</a>
+        <a href="#" id="sign-in-nav">Log In</a>
+        <a href="#" id="sign-up-nav">Sign Up</a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="dynamic-text">BuyWise</div>
+        </div>
+
+        <div class="conversation-starters">
+            <div class="starter" id="starter-financial-analysis">
+                <h3>Financial Analysis</h3>
+                <p>Get insights into financial decisions.</p>
+            </div>
+            <div class="starter" id="starter-buy-property">
+                <h3>Ways to Buy a Property</h3>
+                <p>Explore various methods of buying a property.</p>
+            </div>
+            <div class="starter" id="starter-save-money">
+                <h3>How to Save Money</h3>
+                <p>Learn strategies to save on property purchases.</p>
+            </div>
+            <div class="starter" id="starter-finance-management">
+                <h3>Finance Management</h3>
+                <p>Discover how to manage finances effectively.</p>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-box" id="chat-box"></div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type a message..." />
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('send-button').addEventListener('click', async () => {
+        const queryInput = document.getElementById('user-input').value;
+
+        // Add user message to chat box
+        const chatBox = document.getElementById('chat-box');
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message user';
+        userMessage.textContent = `You: ${queryInput}`;
+        chatBox.appendChild(userMessage);
+
+        try {
+            const response = await fetch('/api/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: queryInput })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const answer = data.data ? data.data.answer : 'No answer found';
+
+                // Replace new lines with <br> for HTML rendering
+                const formattedAnswer = answer.replace(/\n/g, '<br>');
+                
+                const assistantMessage = document.createElement('div');
+                assistantMessage.className = 'message assistant';
+                assistantMessage.innerHTML = `Assistant: ${formattedAnswer}`;
+                chatBox.appendChild(assistantMessage);
+
+                // Scroll to the bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } else {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message assistant';
+                errorMessage.textContent = 'Error fetching data';
+                chatBox.appendChild(errorMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        } catch (error) {
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'message assistant';
+            errorMessage.textContent = 'Error: ' + error.message;
+            chatBox.appendChild(errorMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Clear input field
+        document.getElementById('user-input').value = '';
+    });
+});
+
+    </script>
+</body>
+</html>
